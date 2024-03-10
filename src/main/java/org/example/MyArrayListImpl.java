@@ -4,11 +4,12 @@ import org.example.exception.ListIndexOutOfBoundsException;
 
 import java.util.Arrays;
 
+
 public class MyArrayListImpl<T> implements MyArrayList<T> {
     /**
      * массив
      */
-    private T[] data;
+    private T[] elements;
 
     /**
      * количество заполненных элем. массива, также хранит индекс следующей свободной ячейки
@@ -21,7 +22,7 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
      * @param size
      */
     public MyArrayListImpl(int size) {
-        data = (T[]) new Object[size];
+        elements = (T[]) new Object[size];
         currentSize = 0;
     }
 
@@ -36,10 +37,11 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
      */
     @Override
     public T add(T element) {
-        if (currentSize == data.length) {
+        checkElement(element);
+        if (currentSize == elements.length) {
             lengthen();
         }
-        data[currentSize] = element;
+        elements[currentSize] = element;
         currentSize++;
         return element;
     }
@@ -59,16 +61,17 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
      */
     @Override
     public T add(int index, T element) {
+        checkElement(element);
         checkBounds(index);
-        if (currentSize >= data.length) {
+        if (currentSize >= elements.length) {
             lengthen();
         }
-        if (currentSize < data.length) {
+        if (currentSize < elements.length) {
             if (index < currentSize) {
-                System.arraycopy(data, index, data, index + 1, currentSize - index);
+                System.arraycopy(elements, index, elements, index + 1, currentSize - index);
             }
             currentSize++;
-            return data[index] = element;
+            return elements[index] = element;
         } else {
             throw new ListIndexOutOfBoundsException("Список полон!");
         }
@@ -81,9 +84,9 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
      * и перезаписываем все элементы исходного массива в новый длинный массив
      */
     private void lengthen() {
-        T[] data = (T[]) new Object[(int) (this.data.length * 1.5)];
-        System.arraycopy(this.data, 0, data, 0, this.data.length);
-        this.data = data;
+        T[] elements = (T[]) new Object[(int) (this.elements.length * 1.5)];
+        System.arraycopy(this.elements, 0, elements, 0, this.elements.length);
+        this.elements = elements;
     }
 
     /**
@@ -98,7 +101,7 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
     @Override
     public T get(int index) {
         checkBounds(index);
-        return data[index];
+        return elements[index];
     }
 
     /**
@@ -111,9 +114,9 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
     @Override
     public T remove(int index) {
         checkBounds(index);
-        T result = data[index];
+        T result = elements[index];
         for (int i = index + 1; i < currentSize; i++) {
-            data[i - 1] = data[i];
+            elements[i - 1] = elements[i];
         }
         currentSize--;
         return result;
@@ -125,17 +128,8 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
      */
     @Override
     public void clear() {
-        Arrays.fill(data, 0, currentSize, null);
+        Arrays.fill(elements, 0, currentSize, null);
         currentSize = 0;
-    }
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public T sort() {
-        return null;
     }
 
     /**
@@ -146,19 +140,27 @@ public class MyArrayListImpl<T> implements MyArrayList<T> {
      */
     private void checkBounds(int index) {
         if (index < 0 || index >= currentSize) {
-            throw new ListIndexOutOfBoundsException();
+            throw new ListIndexOutOfBoundsException("Индекс за пределами массива");
         }
     }
 
     /**
-     * Метод поиска элемента
-     *
+     * Mетод проверки передаваемого элемента на null
+     */
+    private void checkElement(T element) {
+        if (element == null) {
+            throw new IllegalArgumentException("Элемент не может быть null!");
+        }
+    }
+
+    /**
+     * Метод поиска элемента по значению
      * @param element
      * @return индекс элемента или (-1) если не найден
      */
     public int indexOf(T element) {
         for (int i = 0; i < currentSize; i++) {
-            if (data[i].equals(element)) {
+            if (elements[i].equals(element)) {
                 return i;
             }
         }

@@ -11,6 +11,4 @@ public interface MyArrayList<T> {
     Object remove(int index);
 
     void clear();
-
-    T sort();
 }
